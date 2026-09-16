@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CharForge - Generador de Personajes y Nombres</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#faf5ff',
+              100: '#f3e8ff',
+              500: '#a855f7',
+              600: '#9333ea',
+              700: '#7e22ce',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'Fira Code', monospace; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    .dark ::-webkit-scrollbar-thumb { background: #334155; }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200 pb-20 md:pb-0">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xl border border-purple-500/20">
+          <i data-lucide="sparkles" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight tracking-tight text-slate-900 dark:text-white">Char<span class="text-purple-500">Forge</span></h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Generador de Personajes & Nombres</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="themeToggleBtn" class="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+          <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="max-w-7xl mx-auto w-full flex-1 flex flex-col md:flex-row gap-6 p-4 md:p-6">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="w-full md:w-64 flex-shrink-0">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-3 space-y-1">
+        <button data-tab="names" class="tab-btn active w-full flex items-center gap-3 px-3.5 py-3 rounded-xl font-semibold text-sm transition text-left bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-500/20">
+          <i data-lucide="user-check" class="w-4 h-4"></i>
+          <span>Nombres & Apellidos</span>
+        </button>
+        
+        <button data-tab="full-character" class="tab-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl font-semibold text-sm transition text-left text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <i data-lucide="wand-2" class="w-4 h-4"></i>
+          <span>Creador de Personaje</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Workspace -->
+    <main class="flex-1 space-y-6">
+
+      <!-- PESTAÑA 1: NOMBRES Y APELLIDOS CON CONTEXTO -->
+      <section id="tab-names" class="tab-panel space-y-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+            <i data-lucide="user-check" class="text-purple-500"></i> Generador de Nombres & Apellidos
+          </h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Genera nombres según el género, estilo cultural o añade una breve descripción para contextualizar al personaje.</p>
+
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Género</label>
+                <select id="nameGender" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:outline-none focus:border-purple-500">
+                  <option value="male">Masculino (Hombre)</option>
+                  <option value="female">Femenino (Mujer)</option>
+                  <option value="neutral">Andrógino / Neutro</option>
+                  <option value="random">Cualquiera (Aleatorio)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Estilo / Origen Cultural</label>
+                <select id="nameStyle" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:outline-none focus:border-purple-500">
+                  <option value="fantasy">Fantasía / Épico</option>
+                  <option value="anime">Anime / Japonés</option>
+                  <option value="hispanic">Moderno / Hispano</option>
+                  <option value="english">Anglo / Moderno</option>
+                  <option value="cyberpunk">Cyberpunk / Sci-Fi</option>
+                  <option value="mythic">Mitológico / Antiguo</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Descripción o Concepto del Personaje (Opcional)</label>
+              <textarea id="nameDesc" rows="2" placeholder="Ej: Un espadachín silencioso con sed de venganza, o una maga joven pero torpe..." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-purple-500 transition"></textarea>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <div class="w-32">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Cantidad</label>
+                <input type="number" id="nameAmount" value="5" min="1" max="20" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:outline-none focus:border-purple-500">
+              </div>
+              <button id="btnGenerateNames" class="mt-6 flex-1 md:flex-initial px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-sm rounded-xl transition flex items-center justify-center gap-2">
+                <i data-lucide="sparkles" class="w-4 h-4"></i> Generar Nombres
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Result Box -->
+        <div id="namesResultContainer" class="hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Resultados Generados</span>
+            <button class="copy-btn px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition flex items-center gap-1.5" data-target="namesOutput">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Lista
+            </button>
+          </div>
+          <div id="namesOutput" class="space-y-2"></div>
+        </div>
+      </section>
+
+      <!-- PESTAÑA 2: CREADOR COMPLETO DE PERSONAJES -->
+      <section id="tab-full-character" class="tab-panel hidden space-y-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+            <i data-lucide="wand-2" class="text-purple-500"></i> Creador de Ficha de Personaje
+          </h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Genera un personaje detallado especificando sus características físicas, vestimenta, ojos, cabello, especie y habilidades.</p>
+
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Género</label>
+                <select id="charGender" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:outline-none focus:border-purple-500">
+                  <option value="hombre">Hombre / Masculino</option>
+                  <option value="mujer">Mujer / Femenino</option>
+                  <option value="androgino">Andrógino / No Binario</option>
+                  <option value="aleatorio">Aleatorio</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Especie / Categoría</label>
+                <select id="charSpecies" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:outline-none focus:border-purple-500">
+                  <option value="humano">Humano</option>
+                  <option value="elfo">Elfo / Semi-elfo</option>
+                  <option value="demonio">Demonio / Híbrido</option>
+                  <option value="androide">Androide / Cyborg</option>
+                  <option value="vampiro">Vampiro / Ser de la Noche</option>
+                  <option value="bestia">Humanoide Bestia / Nekomimi</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">¿Tiene Poderes / Magia?</label>
+                <select id="charPowerType" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:outline-none focus:border-purple-500">
+                  <option value="si">Sí, posee poderes / habilidades especiales</option>
+                  <option value="no">No, habilidades físicas / marciales humanas</option>
+                  <option value="tech">Tecnológicos / Equipamiento avanzado</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Estilo Visual / Ambientación</label>
+                <select id="charStyle" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:outline-none focus:border-purple-500">
+                  <option value="anime">Anime / Shonen / Seinen</option>
+                  <option value="fantasy">Fantasía Medieval Épica</option>
+                  <option value="cyberpunk">Cyberpunk / Futuro Distópico</option>
+                  <option value="modern">Urbano / Moderno</option>
+                  <option value="gothic">Gótico / Oscuro</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Personalidad / Rol Principal</label>
+                <select id="charRole" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium focus:outline-none focus:border-purple-500">
+                  <option value="hero">Protagonista / Heroico</option>
+                  <option value="antihero">Antihéroe / Solitario</option>
+                  <option value="villain">Villano / Antagonista</option>
+                  <option value="support">Compañero / Mentor / Estratega</option>
+                </select>
+              </div>
+            </div>
+
+            <button id="btnGenerateCharacter" class="w-full md:w-auto px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl transition flex items-center justify-center gap-2">
+              <i data-lucide="wand-2" class="w-5 h-5"></i> Generar Ficha Completa
+            </button>
+          </div>
+        </div>
+
+        <!-- Ficha de Personaje Resultado -->
+        <div id="charResultCard" class="hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6">
+          <div class="flex flex-col md:flex-row justify-between md:items-center border-b border-slate-200 dark:border-slate-800 pb-4 gap-4">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10 px-3 py-1 rounded-full border border-purple-200 dark:border-purple-500/20" id="resCategoryTag">CATEGORÍA</span>
+              <h3 class="text-2xl font-extrabold text-slate-900 dark:text-white mt-2" id="resFullName">Nombre Del Personaje</h3>
+              <p class="text-sm text-slate-500 dark:text-slate-400" id="resTitle">Título o Apodo</p>
+            </div>
+            <button class="copy-btn self-start md:self-auto px-4 py-2 text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition flex items-center gap-2" data-target="charCardContent">
+              <i data-lucide="copy" class="w-4 h-4"></i> Copiar Ficha
+            </button>
+          </div>
+
+          <div id="charCardContent" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+            <!-- Columna Izquierda: Aspecto Físico -->
+            <div class="space-y-4 bg-slate-50 dark:bg-slate-950/50 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800/60">
+              <h4 class="font-bold text-slate-900 dark:text-white flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+                <i data-lucide="eye" class="w-4 h-4 text-purple-500"></i> Apariencia & Rasgos Físicos
+              </h4>
+              <ul class="space-y-2 text-slate-600 dark:text-slate-300">
+                <li><strong class="text-slate-900 dark:text-white">Género & Especie:</strong> <span id="resGenderSpecies"></span></li>
+                <li><strong class="text-slate-900 dark:text-white">Estatura / Altura:</strong> <span id="resHeight"></span></li>
+                <li><strong class="text-slate-900 dark:text-white">Color e Iris de Ojos:</strong> <span id="resEyes"></span></li>
+                <li><strong class="text-slate-900 dark:text-white">Diseño en los Ojos:</strong> <span id="resEyeDesign"></span></li>
+                <li><strong class="text-slate-900 dark:text-white">Cabello:</strong> <span id="resHair"></span></li>
+                <li><strong class="text-slate-900 dark:text-white">Vestimenta & Ropa:</strong> <span id="resClothing"></span></li>
+              </ul>
+            </div>
+
+            <!-- Columna Derecha: Habilidades y Trasfondo -->
+            <div class="space-y-4 bg-slate-50 dark:bg-slate-950/50 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800/60">
+              <h4 class="font-bold text-slate-900 dark:text-white flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+                <i data-lucide="zap" class="w-4 h-4 text-purple-500"></i> Habilidades & Trasfondo
+              </h4>
+              <ul class="space-y-2 text-slate-600 dark:text-slate-300">
+                <li><strong class="text-slate-900 dark:text-white">Personalidad:</strong> <span id="resPersonality"></span></li>
+                <li><strong class="text-slate-900 dark:text-white">Poderes / Combate:</strong> <span id="resPowers"></span></li>
+                <li><strong class="text-slate-900 dark:text-white">Punto Débil / Limitación:</strong> <span id="resWeakness"></span></li>
+                <li><strong class="text-slate-900 dark:text-white">Breve Trasfondo:</strong> <span id="resLore"></span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Bottom Navigation Mobile -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex justify-around p-2 z-40">
+    <button data-tab="names" class="tab-btn active flex flex-col items-center gap-1 p-2 text-purple-600 dark:text-purple-400">
+      <i data-lucide="user-check" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium">Nombres</span>
+    </button>
+    <button data-tab="full-character" class="tab-btn flex flex-col items-center gap-1 p-2 text-slate-500 dark:text-slate-400">
+      <i data-lucide="wand-2" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium">Creador</span>
+    </button>
+  </nav>
+
+  <!-- JavaScript -->
+  <script>
+    lucide.createIcons();
+
+    // Theme toggle
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+
+    // Navigation Tabs
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.tab;
+
+        tabBtns.forEach(b => {
+          if(b.dataset.tab === target) {
+            b.classList.add('text-purple-700', 'dark:text-purple-400', 'bg-purple-50', 'dark:bg-purple-500/10');
+            b.classList.remove('text-slate-600', 'dark:text-slate-400');
+          } else {
+            b.classList.remove('text-purple-700', 'dark:text-purple-400', 'bg-purple-50', 'dark:bg-purple-500/10');
+            b.classList.add('text-slate-600', 'dark:text-slate-400');
+          }
+        });
+
+        tabPanels.forEach(panel => {
+          if (panel.id === `tab-${target}`) {
+            panel.classList.remove('hidden');
+          } else {
+            panel.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // Banco de Datos de Nombres
+    const nameData = {
+      fantasy: {
+        male: ["Aelion", "Kaelen", "Thorne", "Valerius", "Darian", "Eldrin", "Balthazar", "Zephyr"],
+        female: ["Lyra", "Elysia", "Sylphrena", "Aethelgard", "Vespera", "Seraphina", "Isolde", "Kaelia"],
+        neutral: ["Rowan", "Valen", "Arian", "Lorian", "Solos", "Ember"],
+        surnames: ["Vanguard", "Shadowbrook", "Ironheart", "Silverglade", "Stormweaver", "Bloodthorn", "Nightfall"]
+      },
+      anime: {
+        male: ["Ren", "Kaito", "Haruto", "Sora", "Kenji", "Tatsuya", "Shin", "Riku"],
+        female: ["Aoi", "Yuki", "Kuro", "Mei", "Akane", "Hikari", "Asuka", "Rei"],
+        neutral: ["Akira", "Shinobu", "Haru", "Nao", "Kaoru"],
+        surnames: ["Kurogane", "Takahashi", "Amamiya", "Kagami", "Kusunoki", "Ryuujin", "Shiroyama"]
+      },
+      hispanic: {
+        male: ["Mateo", "Adrian", "Gabriel", "Dante", "Gael", "Julian", "Damian", "Bruno"],
+        female: ["Valeria", "Elena", "Lucia", "Camila", "Sofia", "Isabella", "Renata", "Alma"],
+        neutral: ["Alex", "Ariel", "Cris", "Sasha"],
+        surnames: ["Navarro", "Castillo", "Mendoza", "Vega", "Vargas", "Santoro", "Cordero", "Salazar"]
+      },
+      cyberpunk: {
+        male: ["Vector", "Dexter", "Kael-01", "Jax", "Neon", "Zero", "Blaze"],
+        female: ["Trinity", "Vesper", "Cyra", "Nova", "Echo", "Circuit", "Nyx"],
+        neutral: ["Glitch", "Byte", "Pixel", "Cipher", "Vortex"],
+        surnames: ["Vance", "Kovacs", "Steele", "Matrix", "Netrunner", "Cross", "Vex"]
+      }
+    };
+
+    // Generador Nombres & Apellidos
+    document.getElementById('btnGenerateNames').addEventListener('click', () => {
+      const gender = document.getElementById('nameGender').value;
+      const style = document.getElementById('nameStyle').value;
+      const desc = document.getElementById('nameDesc').value.trim();
+      const amount = parseInt(document.getElementById('nameAmount').value) || 5;
+
+      const styleObj = nameData[style] || nameData.fantasy;
+      const outputContainer = document.getElementById('namesResultContainer');
+      const outputEl = document.getElementById('namesOutput');
+      outputEl.innerHTML = '';
+
+      for(let i = 0; i < amount; i++) {
+        let g = gender === 'random' ? ['male','female','neutral'][Math.floor(Math.random()*3)] : gender;
+        let pool = styleObj[g] || styleObj.male;
+        let firstName = pool[Math.floor(Math.random() * pool.length)];
+        let surname = styleObj.surnames[Math.floor(Math.random() * styleObj.surnames.length)];
+        
+        let card = document.createElement('div');
+        card.className = "p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center";
+        card.innerHTML = `
+          <div>
+            <span class="font-bold text-slate-900 dark:text-white">${firstName} ${surname}</span>
+            ${desc ? `<p class="text-xs text-slate-400 italic mt-0.5">Adaptado a: "${desc.substring(0,35)}..."</p>` : ''}
+          </div>
+          <button class="px-2.5 py-1 text-xs bg-slate-200 dark:bg-slate-800 hover:bg-purple-600 hover:text-white rounded-lg transition" onclick="navigator.clipboard.writeText('${firstName} ${surname}')">Copiar</button>
+        `;
+        outputEl.appendChild(card);
+      }
+      outputContainer.classList.remove('hidden');
+    });
+
+    // Generador Ficha de Personaje Completa
+    const eyeColors = ["Azul zafiro intesos", "Carmesí brillante", "Amarillo dorado brillante", "Verde esmeralda", "Violeta místico", "Gris plateado", "Negro azabache profundos"];
+    const eyeDesigns = ["Pupilas con forma de estrella de 4 puntas", "Patrón de anillos concéntricos", "Pupila rasgada felina/reptil", "Destellos dorados flotantes en el iris", "Brillo fosforescente en la oscuridad", "Ninguno (Iris limpio estándar)"];
+    const hairColors = ["Blanco neblina", "Negro azabache con reflejos azules", "Rojo carmesí", "Rubio platinado", "Azul cobalto", "Castaño oscuro", "Verde mente brillante"];
+    const hairStyles = ["Corto y desordenado con flequillo libre", "Largo hasta la espalda recogido en coleta baja", "Corte asimétrico cyberpunk", "Ondulado suelto y abundante", "Rizado corto bien definido"];
+
+    document.getElementById('btnGenerateCharacter').addEventListener('click', () => {
+      const gender = document.getElementById('charGender').value;
+      const species = document.getElementById('charSpecies').value;
+      const powers = document.getElementById('charPowerType').value;
+      const style = document.getElementById('charStyle').value;
+      const role = document.getElementById('charRole').value;
+
+      // Generar nombre
+      const styleObj = nameData[style === 'anime' ? 'anime' : 'fantasy'];
+      const gKey = gender === 'mujer' ? 'female' : (gender === 'hombre' ? 'male' : 'neutral');
+      const fn = styleObj[gKey][Math.floor(Math.random()*styleObj[gKey].length)];
+      const sn = styleObj.surnames[Math.floor(Math.random()*styleObj.surnames.length)];
+
+      // Generar métricas
+      const height = (Math.random() * (2.00 - 1.55) + 1.55).toFixed(2);
+      const eyeC = eyeColors[Math.floor(Math.random()*eyeColors.length)];
+      const eyeD = eyeDesigns[Math.floor(Math.random()*eyeDesigns.length)];
+      const hairC = hairColors[Math.floor(Math.random()*hairColors.length)];
+      const hairS = hairStyles[Math.floor(Math.random()*hairStyles.length)];
+
+      // Ropa y equipo
+      let clothing = "";
+      if (style === 'anime' || style === 'modern') {
+        clothing = "Chaqueta ajustada oscura sobre polera minimalista, pantalones de combate con múltiples bolsillos y correas decorativas.";
+      } else if (style === 'fantasy') {
+        clothing = "Túnica de viaje reforzada con placas de cuero en hombros y antebrazos, capa larga resistente al clima.";
+      } else {
+        clothing = "Traje sintético con insertos de fibra de carbono, luces LED sutiles en las costuras y abrigo largo de neopreno.";
+      }
+
+      // Poderes
+      let powerDesc = "";
+      if (powers === 'si') {
+        powerDesc = "Manipulación elemental táctica, velocidad mejorada y capacidad de canalizar energía a través de sus armas.";
+      } else if (powers === 'tech') {
+        powerDesc = "Uso de exoesqueleto liviano, visera de análisis táctico y armas de alta frecuencia.";
+      } else {
+        powerDesc = "Dominio maestro en combate cuerpo a cuerpo, reflejos excepcionales y uso táctico del terreno.";
+      }
+
+      // Llenar Ficha
+      document.getElementById('resCategoryTag').textContent = `${species.toUpperCase()} • ${style.toUpperCase()}`;
+      document.getElementById('resFullName').textContent = `${fn} ${sn}`;
+      document.getElementById('resTitle').textContent = `Rol: ${role.toUpperCase()}`;
+      document.getElementById('resGenderSpecies').textContent = `${gender.toUpperCase()} / ${species.toUpperCase()}`;
+      document.getElementById('resHeight').textContent = `${height} metros`;
+      document.getElementById('resEyes').textContent = eyeC;
+      document.getElementById('resEyeDesign').textContent = eyeD;
+      document.getElementById('resHair').textContent = `${hairS} - Color: ${hairC}`;
+      document.getElementById('resClothing').textContent = clothing;
+      document.getElementById('resPersonality').textContent = "Calculador, observador, de pocas palabras pero firmemente leal a sus ideales.";
+      document.getElementById('resPowers').textContent = powerDesc;
+      document.getElementById('resWeakness').textContent = "Exceso de confianza al luchar en solitario; sobrecalentamiento/agotamiento al usar su máximo nivel.";
+      document.getElementById('resLore').textContent = `Originario de las tierras exteriores, ${fn} ha entrenado durante años para dominar sus habilidades antes de unirse al conflicto actual.`;
+
+      document.getElementById('charResultCard').classList.remove('hidden');
+    });
+
+    // Copy Helper
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.dataset.target;
+        const targetEl = document.getElementById(targetId);
+        if(!targetEl) return;
+
+        navigator.clipboard.writeText(targetEl.innerText).then(() => {
+          const orig = btn.innerHTML;
+          btn.innerHTML = `<i data-lucide="check" class="w-4 h-4 text-purple-500"></i> Copiado`;
+          lucide.createIcons();
+          setTimeout(() => { btn.innerHTML = orig; lucide.createIcons(); }, 2000);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
